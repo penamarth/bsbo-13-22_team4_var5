@@ -43,3 +43,125 @@
 - **Пользователь** получает уведомление о назначении роли.
 
 *Роль может быть изменена или отозвана через тот же интерфейс.*
+
+---
+
+## Код
+
+```csharp
+using System;
+using System.Collections.Generic;
+
+public class ChannelManagement
+{
+    // Хранение информации о каналах
+    private List<Channel> channels = new List<Channel>();
+
+    public class Channel
+    {
+        public string Name { get; set; }
+        public string Type { get; set; } // "Public" или "Private"
+        public string Category { get; set; }
+        public string Avatar { get; set; } = "DefaultAvatar.png";
+        public List<User> Admins { get; set; } = new List<User>();
+        public List<User> Moderators { get; set; } = new List<User>();
+        public List<User> Members { get; set; } = new List<User>();
+    }
+
+    public class User
+    {
+        public string Name { get; set; }
+    }
+
+    // Метод для создания канала
+    public void CreateChannel(string name, string type, string category, User creator)
+    {
+        var newChannel = new Channel
+        {
+            Name = name,
+            Type = type,
+            Category = category
+        };
+
+        // Создатель становится администратором канала
+        newChannel.Admins.Add(creator);
+        channels.Add(newChannel);
+
+        Console.WriteLine($"Канал '{name}' создан. Тип: {type}, Категория: {category}. Администратор: {creator.Name}.");
+    }
+
+    // Метод для установки аватарки канала
+    public void SetChannelAvatar(string channelName, string avatarPath)
+    {
+        var channel = FindChannel(channelName);
+        if (channel == null)
+        {
+            Console.WriteLine($"Канал '{channelName}' не найден.");
+            return;
+        }
+
+        channel.Avatar = avatarPath;
+        Console.WriteLine($"Для канала '{channelName}' установлена аватарка: {avatarPath}.");
+    }
+
+    // Метод для назначения администраторов и модераторов
+    public void AssignRole(string channelName, User user, string role)
+    {
+        var channel = FindChannel(channelName);
+        if (channel == null)
+        {
+            Console.WriteLine($"Канал '{channelName}' не найден.");
+            return;
+        }
+
+        switch (role.ToLower())
+        {
+            case "admin":
+                if (!channel.Admins.Contains(user))
+                {
+                    channel.Admins.Add(user);
+                    Console.WriteLine($"Пользователь {user.Name} назначен администратором канала '{channelName}'.");
+                }
+                break;
+
+            case "moderator":
+                if (!channel.Moderators.Contains(user))
+                {
+                    channel.Moderators.Add(user);
+                    Console.WriteLine($"Пользователь {user.Name} назначен модератором канала '{channelName}'.");
+                }
+                break;
+
+            default:
+                Console.WriteLine($"Роль '{role}' не распознана. Используйте 'admin' или 'moderator'.");
+                break;
+        }
+    }
+
+    // Метод для поиска канала по имени
+    private Channel FindChannel(string channelName)
+    {
+        return channels.Find(c => c.Name.Equals(channelName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Демонстрация работы
+    public static void Main(string[] args)
+    {
+        var manager = new ChannelManagement();
+
+        // Создание пользователей
+        var user1 = new User { Name = "Alice" };
+        var user2 = new User { Name = "Bob" };
+
+        // Создание канала
+        manager.CreateChannel("TechTalks", "Public", "Education", user1);
+
+        // Установка аватарки
+        manager.SetChannelAvatar("TechTalks", "TechAvatar.png");
+
+        // Назначение ролей
+        manager.AssignRole("TechTalks", user2, "moderator");
+    }
+}
+---
+```
