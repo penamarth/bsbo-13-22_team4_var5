@@ -169,10 +169,11 @@ public class ChannelManagement
 
 ## Диаграмма последовательности
 
+![image](https://github.com/user-attachments/assets/f446c8a9-a3c2-4415-9354-2a12f7bd31cb)
 ```plantuml
 @startuml
 
-actor User
+actor Пользователь
 participant "ChannelManagement" as CM
 participant "Channel" as Channel
 
