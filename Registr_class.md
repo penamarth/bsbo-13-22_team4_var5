@@ -57,7 +57,7 @@
     - Логирование попыток входа для обеспечения безопасности.
 
 ---
-*Код класса для C#
+#Код класса для C#
 
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -148,7 +148,7 @@ namespace UserManagement
 
 ---
 
-*Диаграмма класса
+#Диаграмма класса
 ![Без имени](https://github.com/user-attachments/assets/9370e267-18d0-4634-b744-07a5c8e688e6)
 ```plantuml
 @startuml
