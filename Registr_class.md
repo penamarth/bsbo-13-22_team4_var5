@@ -146,7 +146,7 @@ namespace UserManagement
     }
 }
 *Диаграмма класса
-![image](
+![Без имени](https://github.com/user-attachments/assets/9370e267-18d0-4634-b744-07a5c8e688e6)
 ```plantuml
 @startuml
 actor User as "Пользователь"
