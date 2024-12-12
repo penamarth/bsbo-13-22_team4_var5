@@ -163,5 +163,47 @@ public class ChannelManagement
         manager.AssignRole("TechTalks", user2, "moderator");
     }
 }
+```
+
 ---
+
+## Диаграмма последовательности
+
+```plantuml
+@startuml
+
+actor User
+participant "ChannelManagement" as CM
+participant "Channel" as Channel
+
+' Создание канала
+User -> CM : CreateChannel("TechTalks", "Public", "Education", user1)
+activate CM
+CM -> Channel : Create new Channel instance
+Channel --> CM : Return created Channel
+CM --> User : Channel "TechTalks" created
+
+deactivate CM
+
+' Установка аватарки
+User -> CM : SetChannelAvatar("TechTalks", "TechAvatar.png")
+activate CM
+CM -> Channel : FindChannel("TechTalks")
+Channel --> CM : Return Channel instance
+CM --> Channel : Set Avatar
+CM --> User : Avatar set to "TechAvatar.png"
+
+deactivate CM
+
+' Назначение ролей
+User -> CM : AssignRole("TechTalks", user2, "moderator")
+activate CM
+CM -> Channel : FindChannel("TechTalks")
+Channel --> CM : Return Channel instance
+CM -> Channel : Add user2 to Moderators
+CM --> User : user2 assigned as moderator
+
+deactivate CM
+
+@enduml
 ```
