@@ -116,6 +116,9 @@ namespace MessengerApp
         }
     }
 }
+---
+
+
 ##Диаграмма класса
 ![image](https://github.com/user-attachments/assets/89e10baa-87b7-4630-a458-f867e5da6b22)
 
