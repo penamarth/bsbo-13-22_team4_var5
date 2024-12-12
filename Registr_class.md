@@ -145,3 +145,34 @@ namespace UserManagement
         }
     }
 }
+*Диаграмма класса
+```plantuml
+@startuml
+actor User as "Пользователь"
+participant "UserService" as UserService
+participant "Database" as Database
+
+== Регистрация ==
+User -> UserService : Register(email, password, fullName)
+UserService -> Database : Проверить email
+Database --> UserService : Email не существует
+UserService -> Database : Сохранить данные пользователя
+Database --> UserService : Подтверждение сохранения
+UserService --> User : Подтверждение успешной регистрации
+
+== Аутентификация ==
+User -> UserService : Authenticate(email, password)
+UserService -> Database : Найти пользователя по email
+Database --> UserService : Учетные данные пользователя
+UserService -> UserService : Проверка пароля
+UserService --> User : Успех / Ошибка
+
+== Восстановление пароля ==
+User -> UserService : Запрос на сброс пароля
+UserService -> Database : Найти пользователя по email
+Database --> UserService : Найден пользователь
+UserService -> Database : Обновить пароль
+Database --> UserService : Подтверждение обновления
+UserService --> User : Инструкция по сбросу пароля
+@enduml
+```
