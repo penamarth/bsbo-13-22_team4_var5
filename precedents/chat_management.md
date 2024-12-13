@@ -54,25 +54,86 @@
 
 # Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/da3528ab-58fb-4e7f-9778-c946bee24ff3)
+![image](https://github.com/user-attachments/assets/917fb87e-a8f9-47db-936f-33790e36c0c6)
 
 ```plantuml
-@startumlactor Пользователь
-participant Система as "Мессенджер"
-== Создание чата ==Пользователь -> Система: Выбрать "Создать чат"
-Система -> Пользователь: Запросить выбор контактовПользователь -> Система: Выбрать контакты
-Система -> Система: Создать новый чатСистема -> Пользователь: Уведомление о создании чата
+@startuml
+
+actor User as "Пользователь"
+participant Messenger
+participant Chat
+participant ChatStorage
+
+== Создание чата ==
+User -> Messenger: Создать чат
+activate Messenger
+Messenger -> User: Запрос выбора контактов
+User --> Messenger: Выбор контактов
+Messenger -> Chat: Создать экземпляр чата
+activate Chat
+Chat -> ChatStorage: Сохранить чат
+activate ChatStorage
+ChatStorage --> Chat: Подтверждение
+Chat --> Messenger: Экземпляр чата
+Messenger --> User: Подтверждение создания чата
+
+deactivate ChatStorage
+deactivate Chat
+deactivate Messenger
+
 == Редактирование чата ==
-Пользователь -> Система: Открыть существующий чатСистема -> Пользователь: Отобразить информацию о чате
-Пользователь -> Система: Выбрать "Редактировать чат"Система -> Пользователь: Отобразить опции редактирования
-Пользователь -> Система: Изменить название и участниковПользователь -> Система: Подтвердить изменения
-Система -> Система: Обновить информацию о чатеСистема -> Участники: Уведомление об изменениях
+User -> Messenger: Открыть чат
+activate Messenger
+Messenger -> Chat: Загрузить информацию о чате
+activate Chat
+Chat --> Messenger: Информация о чате
+Messenger --> User: Показать информацию
+User -> Messenger: Редактировать чат
+Messenger -> Chat: Обновить название и участников
+Chat -> ChatStorage: Сохранить изменения
+activate ChatStorage
+ChatStorage --> Chat: Подтверждение
+Chat --> Messenger: Обновления сохранены
+Messenger --> User: Подтверждение редактирования
+Messenger -> Chat: Уведомить участников
+
+deactivate ChatStorage
+deactivate Chat
+deactivate Messenger
+
 == Удаление чата ==
-Пользователь -> Система: Открыть чат для удаленияСистема -> Пользователь: Отобразить информацию о чате
-Пользователь -> Система: Выбрать "Удалить чат"Система -> Пользователь: Запросить подтверждение удаления
-Пользователь -> Система: Подтвердить удалениеСистема -> Система: Удалить чат из списка
-Система -> Участники: Уведомление об удалении чата
-== Поиск чатов ==Пользователь -> Система: Ввести ключевое слово для поиска
-Система -> Система: Искать чаты по ключевому словуСистема -> Пользователь: Отобразить список найденных чатов
-Пользователь -> Система: Выбрать нужный чат@enduml
+User -> Messenger: Удалить чат
+activate Messenger
+Messenger -> Chat: Запрос подтверждения удаления
+activate Chat
+Chat --> Messenger: Подтверждение удаления
+Messenger -> ChatStorage: Удалить чат
+activate ChatStorage
+ChatStorage --> Messenger: Подтверждение удаления
+Messenger -> User: Чат удалён
+Messenger -> Chat: Уведомить участников
+
+deactivate ChatStorage
+deactivate Chat
+deactivate Messenger
+
+== Поиск чатов ==
+User -> Messenger: Ввести ключевое слово
+activate Messenger
+Messenger -> ChatStorage: Искать чаты по ключевому слову
+activate ChatStorage
+ChatStorage --> Messenger: Список найденных чатов
+Messenger --> User: Показать список
+User -> Messenger: Выбрать чат
+Messenger -> Chat: Загрузить информацию о выбранном чате
+activate Chat
+Chat --> Messenger: Информация о чате
+Messenger --> User: Показать информацию
+
+deactivate Chat
+deactivate ChatStorage
+deactivate Messenger
+
+@enduml
+
 ```
