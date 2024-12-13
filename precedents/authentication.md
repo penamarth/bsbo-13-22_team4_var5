@@ -1,5 +1,5 @@
-# 1. Регистрация пользователя
-- **Название прецедента**: Регистрация пользователя
+# 1. Регистрация и аутентификация пользователя
+- **Название прецедента**: Регистрация и аутентификация пользователя
 # Процедура регистрации:
 
 1. **Пользователь вводит свои данные:**
@@ -60,36 +60,57 @@
 
 # Диаграмма последовательности
 
-![Без имени](https://github.com/user-attachments/assets/9370e267-18d0-4634-b744-07a5c8e688e6)
+![image](https://github.com/user-attachments/assets/6df98f65-0cdc-4ae8-b9c6-ec17145e0d81)
 
 ```plantuml
 @startuml
-actor User as "Пользователь"
-participant "UserService" as UserService
-participant "Database" as Database
+
+actor Пользователь
+participant Messenger
+participant UserStorage
+participant User
 
 == Регистрация ==
-User -> UserService : Register(email, password, fullName)
-UserService -> Database : Проверить email
-Database --> UserService : Email не существует
-UserService -> Database : Сохранить данные пользователя
-Database --> UserService : Подтверждение сохранения
-UserService --> User : Подтверждение успешной регистрации
+Пользователь -> Messenger: Ввести данные для регистрации
+activate Messenger
+Messenger -> Messenger: Проверить валидность данных
+alt Данные валидны
+Messenger -> UserStorage: Создать запись пользователя
+activate UserStorage
+UserStorage --> Messenger: Подтверждение создания
+Messenger -> User: Создать объект пользователя
+activate User
+User --> Messenger: Объект пользователя создан
+Messenger --> Пользователь: Регистрация успешна
+deactivate User
+else Данные не валидны
+Messenger --> User: Сообщение об ошибке
+end
+
+deactivate UserStorage
+deactivate Messenger
 
 == Аутентификация ==
-User -> UserService : Authenticate(email, password)
-UserService -> Database : Найти пользователя по email
-Database --> UserService : Учетные данные пользователя
-UserService -> UserService : Проверка пароля
-UserService --> User : Успех / Ошибка
+Пользователь -> Messenger: Ввести учетные данные
+activate Messenger
+Messenger -> UserStorage: Найти пользователя по email
+activate UserStorage
+alt Пользователь найден
+UserStorage --> Messenger: Хэш пароля пользователя
+Messenger -> Messenger: Проверить пароль
+alt Пароль верен
+Messenger -> Messenger: Генерировать токен сессии
+Messenger --> Пользователь: Аутентификация успешна
+else Пароль неверен
+Messenger --> Пользователь: Неверный пароль
+end
+else Пользователь не найден
+UserStorage --> Messenger: Пользователь не найден
+Messenger --> Пользователь: Пользователь не найден
+end
 
-== Восстановление пароля ==
-User -> UserService : Запрос на сброс пароля
-UserService -> Database : Найти пользователя по email
-Database --> UserService : Найден пользователь
-UserService -> Database : Обновить пароль
-Database --> UserService : Подтверждение обновления
-UserService --> User : Инструкция по сбросу пароля
+deactivate UserStorage
+deactivate Messenger
+
 @enduml
-```
 
