@@ -68,3 +68,66 @@
 3. Сообщение доставляется согласно основному сценарию.
 4. Копии соответствующих экземпляров мгновенно прикрепляются к уже отправленному сообщению
 ```
+
+# Диаграмма последовательности
+
+![image](https://github.com/user-attachments/assets/4c3f63d9-c045-4f96-abd0-0fbddf91a67d)
+
+```plantuml
+@startuml
+
+actor User as "Зарегистрированный пользователь"
+participant Messenger as "Система"
+participant Recipient as "Получатель"
+
+== Основной поток ==
+User -> Messenger : Определяет контакт, чат или канал
+User -> Messenger : Набирает текст сообщения
+User -> Messenger : Нажимает кнопку отправки
+Messenger -> Recipient : Передает сообщение
+Messenger -> Messenger : Помечает сообщение как "Не прочитано"
+Messenger -> Recipient : Отправляет текстовое и звуковое уведомление
+Recipient -> Messenger : Просматривает сообщение
+Messenger -> Messenger : Обновляет статус сообщения на "Прочитано"
+
+== Альтернативные потоки ==
+
+group Отправитель заблокирован получателем
+    Messenger -> User : Уведомление об ограничении отправки
+    Messenger -> Messenger : Блокирует поле для ввода
+end
+
+group Отправитель заблокирован в группе/канале
+    Messenger -> User : Прерывает ввод сообщения
+    Messenger -> Messenger : Удаляет чат/канал из списка
+end
+
+group Прерывание подключения отправителя к сети
+    Messenger -> Messenger : Сохраняет сообщение в локальную очередь
+    Messenger -> Messenger : Помечает сообщение как "Ошибка отправки"
+    loop Каждые N секунд
+        Messenger -> Messenger : Повторяет попытку отправки
+    end
+    Messenger -> Messenger : Автоматически отправляет сообщения при восстановлении сети
+end
+
+group Получатель не подключен к сети
+    Messenger -> Messenger : Сохраняет сообщение в очередь
+    Messenger -> Messenger : Помечает сообщение как "Ожидает доставки"
+    Recipient -> Messenger : Подключается к сети
+    Messenger -> Recipient : Доставляет сообщение
+end
+
+group Прикрепление дополнительных файлов
+    alt Новый файл
+        User -> Messenger : Загружает файл
+        Messenger -> Messenger : Валидирует и сохраняет файл
+        Messenger -> Recipient : Доставляет сообщение с ссылкой на файл
+    else Файл из "Сохранённых файлов"
+        User -> Messenger : Выбирает файл из "Сохранённых файлов"
+        Messenger -> Recipient : Доставляет сообщение с ссылкой на файл
+    end
+end
+
+@enduml
+```
