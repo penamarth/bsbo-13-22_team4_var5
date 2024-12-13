@@ -77,19 +77,19 @@
 
 # Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/c58fbc3c-cb8b-471f-94c2-13bb4d255845)
+![image](https://github.com/user-attachments/assets/370c26fc-3662-4f55-b1f2-c02b9c91e8b9)
 
 ```plantuml
 @startuml
 
 actor Пользователь
 Пользователь -> Messenger: sendMessage(chat_id, text)
-Пользователь <- Messenger: message_id\n(Сообщение отправлено)
+Пользователь <- Messenger: Сообщение отправлено\n(message_id)
 
 activate Messenger
 
 Messenger -> Message : new Message()
-Messenger <- Message: Сообщение
+Messenger <- Message: Сообщение\n(message_id)
 
 Message -> MessageStorage : save(message)
 
