@@ -77,63 +77,26 @@
 
 # Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/ff7781f2-9c1f-48b9-87a8-3cca37c13a5a)
+![image](https://github.com/user-attachments/assets/c58fbc3c-cb8b-471f-94c2-13bb4d255845)
 
 ```plantuml
 @startuml
 
-actor User as "Зарегистрированный пользователь"
-participant Messenger as "Система"
-participant Recipient as "Получатель"
+actor Пользователь
+Пользователь -> Messenger: sendMessage(chat_id, text)
+Пользователь <- Messenger: message_id\n(Сообщение отправлено)
 
-== Основной поток ==
-User -> Messenger : Определяет контакт, чат или канал
-User -> Messenger : Набирает текст сообщения
-User -> Messenger : Нажимает кнопку отправки
-Messenger -> Recipient : Передает сообщение
-Messenger -> Messenger : Помечает сообщение как "Не прочитано"
-Messenger -> Recipient : Отправляет текстовое и звуковое уведомление
-Recipient -> Messenger : Просматривает сообщение
-Messenger -> Messenger : Обновляет статус сообщения на "Прочитано"
+activate Messenger
 
-== Альтернативные потоки ==
+Messenger -> Message : new Message()
+Messenger <- Message: Сообщение
 
-group Отправитель заблокирован получателем
-    Messenger -> User : Уведомление об ограничении отправки
-    Messenger -> Messenger : Блокирует поле для ввода
-end
+Message -> MessageStorage : save(message)
 
-group Отправитель заблокирован в группе/канале
-    Messenger -> User : Прерывает ввод сообщения
-    Messenger -> Messenger : Удаляет чат/канал из списка
-end
+Messenger -> ChatStorage: get(chat_id)
+ChatStorage -> Messenger : Объект чата
 
-group Прерывание подключения отправителя к сети
-    Messenger -> Messenger : Сохраняет сообщение в локальную очередь
-    Messenger -> Messenger : Помечает сообщение как "Ошибка отправки"
-    loop Каждые N секунд
-        Messenger -> Messenger : Повторяет попытку отправки
-    end
-    Messenger -> Messenger : Автоматически отправляет сообщения при восстановлении сети
-end
-
-group Получатель не подключен к сети
-    Messenger -> Messenger : Сохраняет сообщение в очередь
-    Messenger -> Messenger : Помечает сообщение как "Ожидает доставки"
-    Recipient -> Messenger : Подключается к сети
-    Messenger -> Recipient : Доставляет сообщение
-end
-
-group Прикрепление дополнительных файлов
-    alt Новый файл
-        User -> Messenger : Загружает файл
-        Messenger -> Messenger : Валидирует и сохраняет файл
-        Messenger -> Recipient : Доставляет сообщение с ссылкой на файл
-    else Файл из "Сохранённых файлов"
-        User -> Messenger : Выбирает файл из "Сохранённых файлов"
-        Messenger -> Recipient : Доставляет сообщение с ссылкой на файл
-    end
-end
+ChatStorage -> Chat : add(message_id)
 
 @enduml
 ```
