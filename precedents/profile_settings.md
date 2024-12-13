@@ -55,30 +55,63 @@
 
 ## Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/89e10baa-87b7-4630-a458-f867e5da6b22)
+![image](https://github.com/user-attachments/assets/ba7e7f0a-b820-48d6-a5f4-03f42552bd49)
 
 ```plantuml
 @startuml
-actor Пользователь
-participant "UserProfile (Класс)" as UserProfile
-participant "Сервер" as Server
 
-== Процедура смены никнейма ==
-Пользователь -> UserProfile : UpdateNickname(newNickname)
-UserProfile -> UserProfile : ValidateNickname(newNickname)
-alt Никнейм корректен
-    UserProfile -> Server : Сохранить новый никнейм
-    Server --> UserProfile : Подтверждение сохранения
-    UserProfile --> Пользователь : Уведомить об успешном изменении
-else Никнейм некорректен
-    UserProfile --> Пользователь : Отобразить сообщение об ошибке
+actor Пользователь
+participant Messenger
+participant UserStorage
+participant User
+participant UserData
+
+== Смена никнейма ==
+Пользователь -> Messenger: Изменить никнейм
+activate Messenger
+Messenger -> UserStorage: Найти пользователя по ID
+activate UserStorage
+UserStorage --> Messenger: Пользователь найден
+Messenger -> User: Изменить никнейм
+activate User
+User -> UserData: Проверить и изменить никнейм
+activate UserData
+alt Никнейм соответствует правилам
+UserData -> UserData: Сохранить изменения
+UserData --> User: Подтверждение
+User --> Messenger: Никнейм обновлён
+Messenger --> Пользователь: Никнейм обновлен
+else Никнейм не соответствует правилам
+UserData --> User: Ошибка
+User --> Messenger: Ошибка
+Messenger --> Пользователь: Сообщение об ошибке
 end
 
-== Процедура изменения настроек приватности ==
-Пользователь -> UserProfile : UpdatePrivacySettings(isVisibleToFriends)
-UserProfile -> Server : Сохранить настройки приватности
-Server --> UserProfile : Подтверждение сохранения
-UserProfile --> Пользователь : Уведомить об успешном обновлении
+deactivate UserData
+deactivate User
+deactivate UserStorage
+deactivate Messenger
+
+== Изменение настроек приватности ==
+Пользователь -> Messenger: Изменить настройки приватности
+activate Messenger
+Messenger -> UserStorage: Найти пользователя по ID
+activate UserStorage
+UserStorage --> Messenger: Пользователь найден
+Messenger -> User: Изменить настройки приватности
+activate User
+User -> UserData: Изменить параметры приватности
+activate UserData
+UserData -> UserData: Сохранить изменения
+UserData --> User: Подтверждение
+User --> Messenger: Параметры обновлены
+Messenger --> Пользователь: Параметры обновлены
+
+deactivate UserData
+deactivate User
+deactivate UserStorage
+deactivate Messenger
 
 @enduml
+
 ```
