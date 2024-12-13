@@ -48,42 +48,58 @@
 
 ## Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/f446c8a9-a3c2-4415-9354-2a12f7bd31cb)
+![image](https://github.com/user-attachments/assets/bae2b708-620c-4a0a-9e50-9c958c605893)
+
 ```plantuml
 @startuml
 
-actor Пользователь
-participant "ChannelManagement" as CM
-participant "Channel" as Channel
+actor User as "Пользователь"
+participant Messenger
+participant Channel
+participant ChannelStorage
 
-' Создание канала
-User -> CM : CreateChannel("TechTalks", "Public", "Education", user1)
-activate CM
-CM -> Channel : Create new Channel instance
-Channel --> CM : Return created Channel
-CM --> User : Channel "TechTalks" created
+User -> Messenger: Создать канал
+activate Messenger
+Messenger -> Channel: Создать экземпляр
+activate Channel
+Channel -> ChannelStorage: Сохранить канал
+activate ChannelStorage
+ChannelStorage --> Channel: Подтверждение
+Channel --> Messenger: Экземпляр канала
+Messenger --> User: Подтверждение создания канала
 
-deactivate CM
+deactivate ChannelStorage
+deactivate Channel
+deactivate Messenger
 
-' Установка аватарки
-User -> CM : SetChannelAvatar("TechTalks", "TechAvatar.png")
-activate CM
-CM -> Channel : FindChannel("TechTalks")
-Channel --> CM : Return Channel instance
-CM --> Channel : Set Avatar
-CM --> User : Avatar set to "TechAvatar.png"
+User -> Messenger: Установить аватарку
+activate Messenger
+Messenger -> Channel: Изменить аватарку
+activate Channel
+Channel -> ChannelStorage: Обновить данные канала
+activate ChannelStorage
+ChannelStorage --> Channel: Подтверждение
+Channel --> Messenger: Подтверждение обновления
+Messenger --> User: Успешное обновление аватарки
 
-deactivate CM
+deactivate ChannelStorage
+deactivate Channel
+deactivate Messenger
 
-' Назначение ролей
-User -> CM : AssignRole("TechTalks", user2, "moderator")
-activate CM
-CM -> Channel : FindChannel("TechTalks")
-Channel --> CM : Return Channel instance
-CM -> Channel : Add user2 to Moderators
-CM --> User : user2 assigned as moderator
+User -> Messenger: Назначить администратора/модератора
+activate Messenger
+Messenger -> Channel: Обновить роль участника
+activate Channel
+Channel -> ChannelStorage: Сохранить изменения
+activate ChannelStorage
+ChannelStorage --> Channel: Подтверждение
+Channel --> Messenger: Подтверждение обновления
+Messenger --> User: Уведомление об успешном назначении
 
-deactivate CM
+deactivate ChannelStorage
+deactivate Channel
+deactivate Messenger
 
 @enduml
+
 ```
