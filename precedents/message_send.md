@@ -71,7 +71,7 @@
 
 # Диаграмма последовательности
 
-![image](https://github.com/user-attachments/assets/4c3f63d9-c045-4f96-abd0-0fbddf91a67d)
+![image](https://github.com/user-attachments/assets/ff7781f2-9c1f-48b9-87a8-3cca37c13a5a)
 
 ```plantuml
 @startuml
